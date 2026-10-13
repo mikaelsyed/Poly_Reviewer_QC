@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ArcGIS defaultAssembly="MikaelsReviewerQcToolbar.dll"
+        defaultNamespace="MikaelsReviewerQcToolbar"
+        xmlns="http://schemas.esri.com/DADF/Registry"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://schemas.esri.com/DADF/Registry file:///C:/Program%20Files/ArcGIS/Pro/bin/ArcGIS.Desktop.Framework.xsd">
+
+  <AddInInfo id="{5ecb1ec8-f8ac-4cfe-91c3-833f9fe07669}" version="1.1" desktopVersion="3.5.57366" product="ArcGISPro">
+    <Name>MikaelsReviewerQcToolbar</Name>
+    <Description>Self-contained QC toolbar that re-implements Data Reviewer's Evaluate Part Count, Polygon Overlap/Gap is Sliver, Find Polygons with Holes, Duplicate Feature and Unique Field Value checks as plain geometry/attribute logic, adds a Vertex Tolerance Check and a Zero Length / Zero Area check, and includes the standard Check Geometry tool. Does not require the Data Reviewer extension license - each tool picks a layer, runs, selects flagged features and optionally exports; Run All QC Checks batches every tool across several layers.</Description>
+    <Image>Images\AddInDesktop32.png</Image>
+    <Author>Mikael.Syed</Author>
+    <Company>Fugro</Company>
+    <Date>9/22/2026</Date>
+    <Subject>Geoprocessing, Geometry</Subject>
+    <!-- Note subject can be one or more of these topics:
+                    Content, Framework, Editing, Geodatabase, Geometry, Geoprocessing, Layouts, Map Authoring, Map Exploration -->
+  </AddInInfo>
+
+  <modules>
+    <insertModule id="MikaelsReviewerQcToolbar_Module" className="Module1" autoLoad="false" caption="Module1">
+      <tabs>
+        <tab id="MikaelsReviewerQcToolbar_Tab1" caption="Reviewer QC">
+          <group refID="MikaelsReviewerQcToolbar_BatchGroup"/>
+          <group refID="MikaelsReviewerQcToolbar_AutomatedChecksGroup"/>
+          <group refID="MikaelsReviewerQcToolbar_GeometryGroup"/>
+        </tab>
+      </tabs>
+
+      <groups>
+        <group id="MikaelsReviewerQcToolbar_BatchGroup" caption="Batch QC" appearsOnAddInTab="false">
+          <button refID="MikaelsReviewerQcToolbar_RunAllChecksButton" size="large"/>
+        </group>
+        <group id="MikaelsReviewerQcToolbar_AutomatedChecksGroup" caption="Automated Checks" appearsOnAddInTab="false">
+          <button refID="MikaelsReviewerQcToolbar_EvaluatePartCountButton"/>
+          <button refID="MikaelsReviewerQcToolbar_DuplicateVertexButton"/>
+          <button refID="MikaelsReviewerQcToolbar_PolygonOverlapIsSliverButton"/>
+          <button refID="MikaelsReviewerQcToolbar_PolygonGapIsSliverButton"/>
+          <button refID="MikaelsReviewerQcToolbar_FindPolygonsWithHolesButton"/>
+          <button refID="MikaelsReviewerQcToolbar_DuplicateFeatureButton"/>
+          <button refID="MikaelsReviewerQcToolbar_UniqueFieldValueButton"/>
+        </group>
+        <group id="MikaelsReviewerQcToolbar_GeometryGroup" caption="Geometry" appearsOnAddInTab="false">
+          <button refID="MikaelsReviewerQcToolbar_CheckGeometryButton" size="large"/>
+          <button refID="MikaelsReviewerQcToolbar_ZeroLengthAreaButton" size="large"/>
+        </group>
+      </groups>
+
+      <controls>
+        <button id="MikaelsReviewerQcToolbar_RunAllChecksButton" caption="Run All QC Checks"
+                className="MikaelsReviewerQcToolbar.RunAllChecks.RunAllChecksButton"
+                loadOnClick="true"
+                smallImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/DataReviewerReviewerRunRules16.png"
+                largeImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/DataReviewerReviewerRunRules32.png">
+          <tooltip heading="Run All QC Checks">
+            Runs every QC check below in sequence on the polygon and polyline layers you pick. Each step has its own parameters, a skip toggle, a false-positive count check (a mismatch aborts the run) and an export-to-default-geodatabase option.
+            <disabledText></disabledText>
+          </tooltip>
+        </button>
+        <button id="MikaelsReviewerQcToolbar_EvaluatePartCountButton" caption="Evaluate Part Count"
+                className="MikaelsReviewerQcToolbar.EvaluatePartCount.EvaluatePartCountButton"
+                loadOnClick="true"
+                smallImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/ReviewerEvaluatePartCount16.png"
+                largeImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/ReviewerEvaluatePartCount32.png">
+          <tooltip heading="Evaluate Part Count">
+            Flags features where the part count matches a query you define (e.g. Greater Than 1 for multipart), then selects them and optionally exports.
+            <disabledText></disabledText>
+          </tooltip>
+        </button>
+        <button id="MikaelsReviewerQcToolbar_DuplicateVertexButton" caption="Vertex Tolerance Check"
+                className="MikaelsReviewerQcToolbar.DuplicateVertex.DuplicateVertexButton"
+                loadOnClick="true"
+                smallImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/SnappingToleranceTool16.png"
+                largeImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/SnappingToleranceTool32.png">
+          <tooltip heading="Vertex Tolerance Check">
+            Finds vertices closer to another vertex than a tolerance you set (default 1.5 in the layer's units), and separately flags ones right at the tolerance. Selects the features and writes the offending vertices to a point feature class.
+            <disabledText></disabledText>
+          </tooltip>
+        </button>
+        <button id="MikaelsReviewerQcToolbar_PolygonOverlapIsSliverButton" caption="Polygon Overlap is Sliver"
+                className="MikaelsReviewerQcToolbar.PolygonOverlapIsSliver.PolygonOverlapIsSliverButton"
+                loadOnClick="true"
+                smallImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/ReviewerPolygonOverlapIsSliverCheck16.png"
+                largeImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/ReviewerPolygonOverlapIsSliverCheck32.png">
+          <tooltip heading="Polygon Overlap is Sliver">
+            Finds overlaps between two polygon layers with a Thinness Ratio below a threshold you set, and writes them to an output feature class.
+            <disabledText></disabledText>
+          </tooltip>
+        </button>
+        <button id="MikaelsReviewerQcToolbar_PolygonGapIsSliverButton" caption="Polygon Gap is Sliver"
+                className="MikaelsReviewerQcToolbar.PolygonGapIsSliver.PolygonGapIsSliverButton"
+                loadOnClick="true"
+                smallImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/ReviewerPolygonGapIsSliverCheck16.png"
+                largeImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/ReviewerPolygonGapIsSliverCheck32.png">
+          <tooltip heading="Polygon Gap is Sliver">
+            Finds gaps between polygons - fully enclosed gaps of any size plus open strips up to a maximum width - and writes them to an output feature class with area, thinness and an IS_SLIVER flag.
+            <disabledText></disabledText>
+          </tooltip>
+        </button>
+        <button id="MikaelsReviewerQcToolbar_FindPolygonsWithHolesButton" caption="Find Polygons with Holes"
+                className="MikaelsReviewerQcToolbar.FindPolygonsWithHoles.FindPolygonsWithHolesButton"
+                loadOnClick="true"
+                smallImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/ReviewerFindPolygonsWithHolesCheck16.png"
+                largeImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/ReviewerFindPolygonsWithHolesCheck32.png">
+          <tooltip heading="Find Polygons with Holes">
+            Flags polygons that have a ring contained inside another ring of the same feature, then selects them and optionally exports.
+            <disabledText></disabledText>
+          </tooltip>
+        </button>
+        <button id="MikaelsReviewerQcToolbar_DuplicateFeatureButton" caption="Duplicate Feature"
+                className="MikaelsReviewerQcToolbar.DuplicateFeature.DuplicateFeatureButton"
+                loadOnClick="true"
+                smallImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/ReviewerDuplicateFeatureCheck16.png"
+                largeImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/ReviewerDuplicateFeatureCheck32.png">
+          <tooltip heading="Duplicate Feature">
+            Flags features collocated with another feature in the same layer (optionally also matching chosen attributes), then selects them and optionally exports.
+            <disabledText></disabledText>
+          </tooltip>
+        </button>
+        <button id="MikaelsReviewerQcToolbar_UniqueFieldValueButton" caption="Unique Field Value"
+                className="MikaelsReviewerQcToolbar.UniqueFieldValue.UniqueFieldValueButton"
+                loadOnClick="true"
+                smallImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/ReviewerUniqueFieldValueCheck16.png"
+                largeImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/ReviewerUniqueFieldValueCheck32.png">
+          <tooltip heading="Unique Field Value">
+            Flags rows with non-unique values across the field(s) you choose, then selects them and optionally exports.
+            <disabledText></disabledText>
+          </tooltip>
+        </button>
+        <button id="MikaelsReviewerQcToolbar_ZeroLengthAreaButton" caption="Zero Length / Area"
+                className="MikaelsReviewerQcToolbar.ZeroLengthArea.ZeroLengthAreaButton"
+                loadOnClick="true"
+                smallImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/MeasureArea16.png"
+                largeImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/MeasureArea32.png">
+          <tooltip heading="Zero Length / Zero Area">
+            Finds degenerate geometry: empty or missing shapes, polylines at or below a length you set (default 0) and polygons at or below an area you set (default 0), including multipart features with one collapsed part.
+            <disabledText></disabledText>
+          </tooltip>
+        </button>
+        <button id="MikaelsReviewerQcToolbar_CheckGeometryButton" caption="Check Geometry"
+                className="MikaelsReviewerQcToolbar.CheckGeometry.CheckGeometryButton"
+                loadOnClick="true"
+                smallImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/CheckGeometry16.png"
+                largeImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/CheckGeometry32.png">
+          <tooltip heading="Check Geometry">
+            Opens Esri's standard Check Geometry tool dialog (Data Management toolbox) to validate feature geometry.
+            <disabledText></disabledText>
+          </tooltip>
+        </button>
+      </controls>
+
+    </insertModule>
+  </modules>
+</ArcGIS>

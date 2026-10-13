@@ -1,0 +1,254 @@
+<controls:ProWindow x:Class="MikaelsReviewerQcToolbar.RunAllChecks.RunAllChecksWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:ArcGIS.Desktop.Framework.Controls;assembly=ArcGIS.Desktop.Framework"
+        xmlns:wfi="clr-namespace:System.Windows.Forms.Integration;assembly=WindowsFormsIntegration"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:qc="clr-namespace:MikaelsReviewerQcToolbar.Common"
+        mc:Ignorable="d"
+        Title="Run All QC Checks" Height="1000" Width="680"
+        WindowStartupLocation="CenterOwner" ResizeMode="CanResize">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="300"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" TextWrapping="Wrap" Margin="0,0,0,8"
+                   Text="Runs every QC check in sequence on the layers you pick, with a progress bar and an optional QC output log file (results, false positives, run times) for the Metadata Editor. Each step runs only on the layer types it applies to and can be skipped, checked against an expected false-positive count (the total across all the layers it ran on; a mismatch aborts the whole run), and exported to the project's default geodatabase as '&lt;Output name&gt;_&lt;layer name&gt;'. Distances and tolerances are in each layer's own units."/>
+
+        <Grid Grid.Row="1" Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Margin="0,0,6,0">
+                <TextBlock Text="Polygon layers (Ctrl/Shift-click for several):"/>
+                <ListBox x:Name="PolygonList" SelectionMode="Extended" Height="90" Margin="0,3,0,0"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Margin="6,0,0,0">
+                <TextBlock Text="Polyline layers (Ctrl/Shift-click for several):"/>
+                <ListBox x:Name="LineList" SelectionMode="Extended" Height="90" Margin="0,3,0,0"/>
+            </StackPanel>
+        </Grid>
+
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+
+                <GroupBox Header="1. Evaluate Part Count (polygons and polylines)" Margin="0,0,0,8">
+                    <StackPanel Margin="6">
+                        <CheckBox x:Name="S1_SkipCheck" Content="Skip this step"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <TextBlock Text="Number of parts:" Width="160" VerticalAlignment="Center"/>
+                            <ComboBox x:Name="S1_OpCombo" Width="200"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <TextBlock Text="Value:" Width="160" VerticalAlignment="Center"/>
+                            <TextBox x:Name="S1_V1Text" Width="100" Text="1"/>
+                        </StackPanel>
+                        <StackPanel x:Name="S1_V2Panel" Orientation="Horizontal" Margin="0,4,0,0">
+                            <TextBlock Text="And:" Width="160" VerticalAlignment="Center"/>
+                            <TextBox x:Name="S1_V2Text" Width="100" Text="2"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <CheckBox x:Name="S1_FpCheck" Content="Enable False Positive Check, expected count:" VerticalAlignment="Center"/>
+                            <TextBox x:Name="S1_FpThresholdText" Width="60" Margin="6,0,0,0" Text="0"/>
+                        </StackPanel>
+                        <CheckBox x:Name="S1_ExportCheck" Content="Export flagged features (PartCountOutput)" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="2. Vertex Tolerance Check (polygons and polylines)" Margin="0,0,0,8">
+                    <StackPanel Margin="6">
+                        <CheckBox x:Name="S2_SkipCheck" Content="Skip this step"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <TextBlock Text="Tolerance:" Width="160" VerticalAlignment="Center"/>
+                            <TextBox x:Name="S2_ToleranceText" Width="100" Text="1.5"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <TextBlock Text="At-tolerance margin (+/-):" Width="160" VerticalAlignment="Center"/>
+                            <TextBox x:Name="S2_MarginText" Width="100" Text="0.001"/>
+                        </StackPanel>
+                        <CheckBox x:Name="S2_BelowCheck" Content="Report vertices below the tolerance" Margin="0,4,0,0" IsChecked="True"/>
+                        <CheckBox x:Name="S2_AtCheck" Content="Report vertices at the tolerance (cutting it close)" Margin="0,2,0,0" IsChecked="True"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <CheckBox x:Name="S2_FpCheck" Content="Enable False Positive Check (flagged features), expected count:" VerticalAlignment="Center"/>
+                            <TextBox x:Name="S2_FpThresholdText" Width="60" Margin="6,0,0,0" Text="0"/>
+                        </StackPanel>
+                        <CheckBox x:Name="S2_ExportPointsCheck" Content="Export vertex points (VertexToleranceVertices)" Margin="0,4,0,0" IsChecked="True"/>
+                        <CheckBox x:Name="S2_ExportCheck" Content="Export flagged features (VertexToleranceOutput)" Margin="0,2,0,0"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="3. Polygon Overlap is Sliver (polygons)" Margin="0,0,0,8">
+                    <StackPanel Margin="6">
+                        <CheckBox x:Name="S3_SkipCheck" Content="Skip this step"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <TextBlock Text="Thinness Ratio threshold:" Width="160" VerticalAlignment="Center"/>
+                            <TextBox x:Name="S3_ThinnessText" Width="100" Text="0.1"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <TextBlock Text="Maximum area (optional):" Width="160" VerticalAlignment="Center"/>
+                            <TextBox x:Name="S3_MaxAreaText" Width="100"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <CheckBox x:Name="S3_FpCheck" Content="Enable False Positive Check, expected count:" VerticalAlignment="Center"/>
+                            <TextBox x:Name="S3_FpThresholdText" Width="60" Margin="6,0,0,0" Text="0"/>
+                        </StackPanel>
+                        <CheckBox x:Name="S3_ExportCheck" Content="Export overlap polygons (OverlapSliverOutput)" Margin="0,4,0,0" IsChecked="True"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="4. Polygon Gap is Sliver (polygons)" Margin="0,0,0,8">
+                    <StackPanel Margin="6">
+                        <CheckBox x:Name="S4_SkipCheck" Content="Skip this step"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <TextBlock Text="Maximum gap width:" Width="160" VerticalAlignment="Center"/>
+                            <TextBox x:Name="S4_WidthText" Width="100" Text="10"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <TextBlock Text="Sliver Thinness Ratio:" Width="160" VerticalAlignment="Center"/>
+                            <TextBox x:Name="S4_ThinnessText" Width="100" Text="0.1"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <TextBlock Text="Sliver max area (optional):" Width="160" VerticalAlignment="Center"/>
+                            <TextBox x:Name="S4_MaxAreaText" Width="100"/>
+                        </StackPanel>
+                        <CheckBox x:Name="S4_OnlySliversCheck" Content="Only output gaps classified as slivers (otherwise every gap is output)" Margin="0,4,0,0"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <CheckBox x:Name="S4_FpCheck" Content="Enable False Positive Check, expected count:" VerticalAlignment="Center"/>
+                            <TextBox x:Name="S4_FpThresholdText" Width="60" Margin="6,0,0,0" Text="0"/>
+                        </StackPanel>
+                        <CheckBox x:Name="S4_ExportCheck" Content="Export gap polygons (GapSliverOutput)" Margin="0,4,0,0" IsChecked="True"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="5. Find Polygons with Holes (polygons)" Margin="0,0,0,8">
+                    <StackPanel Margin="6">
+                        <CheckBox x:Name="S5_SkipCheck" Content="Skip this step"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <CheckBox x:Name="S5_FpCheck" Content="Enable False Positive Check (polygons with holes), expected count:" VerticalAlignment="Center"/>
+                            <TextBox x:Name="S5_FpThresholdText" Width="60" Margin="6,0,0,0" Text="0"/>
+                        </StackPanel>
+                        <CheckBox x:Name="S5_ExportHolesCheck" Content="Export hole polygons (PolygonHoles)" Margin="0,4,0,0" IsChecked="True"/>
+                        <CheckBox x:Name="S5_ExportCheck" Content="Export flagged polygons (PolygonsWithHolesOutput)" Margin="0,2,0,0"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="6. Duplicate Feature (polygons and polylines)" Margin="0,0,0,8">
+                    <StackPanel Margin="6">
+                        <CheckBox x:Name="S6_SkipCheck" Content="Skip this step"/>
+                        <Grid Margin="0,4,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,6,0">
+                                <TextBlock Text="Polygon fields (from the selected polygon layers):" TextWrapping="Wrap"/>
+                                <ListBox x:Name="S6_PolyFieldsList" SelectionMode="Extended" Height="90" Margin="0,3,0,0"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Margin="6,0,0,0">
+                                <TextBlock Text="Polyline fields (from the selected polyline layers):" TextWrapping="Wrap"/>
+                                <ListBox x:Name="S6_LineFieldsList" SelectionMode="Extended" Height="90" Margin="0,3,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Text="Optional: features must be collocated AND match on every field picked. Leave empty to compare geometry only. A layer that lacks a picked field is compared without it." Margin="0,2,0,0" TextWrapping="Wrap" Foreground="Gray"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <CheckBox x:Name="S6_FpCheck" Content="Enable False Positive Check, expected count:" VerticalAlignment="Center"/>
+                            <TextBox x:Name="S6_FpThresholdText" Width="60" Margin="6,0,0,0" Text="0"/>
+                        </StackPanel>
+                        <CheckBox x:Name="S6_ExportCheck" Content="Export flagged features (DuplicateFeatureOutput)" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="7. Unique Field Value (polygons and polylines)" Margin="0,0,0,8">
+                    <StackPanel Margin="6">
+                        <CheckBox x:Name="S7_SkipCheck" Content="Skip this step"/>
+                        <Grid Margin="0,4,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,6,0">
+                                <TextBlock Text="Polygon fields (from the selected polygon layers):" TextWrapping="Wrap"/>
+                                <ListBox x:Name="S7_PolyFieldsList" SelectionMode="Extended" Height="90" Margin="0,3,0,0"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Margin="6,0,0,0">
+                                <TextBlock Text="Polyline fields (from the selected polyline layers):" TextWrapping="Wrap"/>
+                                <ListBox x:Name="S7_LineFieldsList" SelectionMode="Extended" Height="90" Margin="0,3,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Text="Pick the field(s) whose combined value must be unique. A layer that lacks all of its picked fields is skipped." Margin="0,2,0,0" TextWrapping="Wrap" Foreground="Gray"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <CheckBox x:Name="S7_FpCheck" Content="Enable False Positive Check, expected count:" VerticalAlignment="Center"/>
+                            <TextBox x:Name="S7_FpThresholdText" Width="60" Margin="6,0,0,0" Text="0"/>
+                        </StackPanel>
+                        <CheckBox x:Name="S7_ExportCheck" Content="Export flagged features (UniqueFieldValueOutput)" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="8. Check Geometry (polygons and polylines)" Margin="0,0,0,8">
+                    <StackPanel Margin="6">
+                        <CheckBox x:Name="S8_SkipCheck" Content="Skip this step"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <CheckBox x:Name="S8_FpCheck" Content="Enable False Positive Check (geometry problems), expected count:" VerticalAlignment="Center"/>
+                            <TextBox x:Name="S8_FpThresholdText" Width="60" Margin="6,0,0,0" Text="0"/>
+                        </StackPanel>
+                        <CheckBox x:Name="S8_ExportCheck" Content="Export problem table (CheckGeometryOutput)" Margin="0,4,0,0" IsChecked="True"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="9. Zero Length / Zero Area (polygons and polylines)" Margin="0,0,0,8">
+                    <StackPanel Margin="6">
+                        <CheckBox x:Name="S9_SkipCheck" Content="Skip this step"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <TextBlock Text="Polyline length at or below:" Width="180" VerticalAlignment="Center"/>
+                            <TextBox x:Name="S9_LengthText" Width="100" Text="0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <TextBlock Text="Polygon area at or below:" Width="180" VerticalAlignment="Center"/>
+                            <TextBox x:Name="S9_AreaText" Width="100" Text="0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <CheckBox x:Name="S9_FpCheck" Content="Enable False Positive Check, expected count:" VerticalAlignment="Center"/>
+                            <TextBox x:Name="S9_FpThresholdText" Width="60" Margin="6,0,0,0" Text="0"/>
+                        </StackPanel>
+                        <CheckBox x:Name="S9_ExportCheck" Content="Export flagged features (ZeroLengthAreaOutput)" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </GroupBox>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="3" Margin="0,8,0,4">
+            <StackPanel Orientation="Horizontal">
+                <CheckBox x:Name="WriteLogCheck" Content="Write QC output log file:" IsChecked="True" Width="200" VerticalAlignment="Center"
+                          ToolTip="Each run writes (and replaces) this text file with every step's errors, false positives, run times and settings."/>
+                <TextBox x:Name="LogPathText" Width="340" VerticalContentAlignment="Center"/>
+                <Button x:Name="LogBrowseButton" Content="Browse..." Padding="8,2" Margin="4,0,0,0" Click="LogBrowseButton_Click"/>
+            </StackPanel>
+            <TextBlock Margin="0,6,0,0" Text="Log:"/>
+        </StackPanel>
+        <Grid Grid.Row="4">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <qc:QcProgressPanel x:Name="ProgressPanel" Grid.Row="0"/>
+            <Border Grid.Row="1" BorderBrush="Gray" BorderThickness="1">
+                <wfi:WindowsFormsHost x:Name="LogHost"/>
+            </Border>
+        </Grid>
+
+        <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+            <Button x:Name="RunButton" Content="Run All" Width="100" Padding="4" Margin="0,0,8,0" Click="RunButton_Click" IsDefault="True"/>
+            <Button x:Name="CancelButton" Content="Cancel" Width="90" Padding="4" Margin="0,0,8,0" Click="CancelButton_Click" Visibility="Collapsed"/>
+            <Button x:Name="CloseButton" Content="Close" Width="90" Padding="4" Click="CloseButton_Click" IsCancel="True"/>
+        </StackPanel>
+    </Grid>
+</controls:ProWindow>

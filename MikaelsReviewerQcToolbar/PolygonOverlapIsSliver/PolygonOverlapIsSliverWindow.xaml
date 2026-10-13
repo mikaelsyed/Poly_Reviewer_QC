@@ -1,0 +1,70 @@
+<controls:ProWindow x:Class="MikaelsReviewerQcToolbar.PolygonOverlapIsSliver.PolygonOverlapIsSliverWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:ArcGIS.Desktop.Framework.Controls;assembly=ArcGIS.Desktop.Framework"
+        xmlns:wfi="clr-namespace:System.Windows.Forms.Integration;assembly=WindowsFormsIntegration"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:qc="clr-namespace:MikaelsReviewerQcToolbar.Common"
+        mc:Ignorable="d"
+        Title="Polygon Overlap is Sliver" Height="650" Width="540"
+        WindowStartupLocation="CenterOwner" ResizeMode="CanResize">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" TextWrapping="Wrap" Margin="0,0,0,10"
+                   Text="Finds overlaps between two polygon layers (pick the same layer twice to compare a layer with itself) that are thin enough to count as slivers. Thinness Ratio = 4*pi*area/perimeter^2: 1.0 is a circle, near 0 is a long thin strip. A chunky overlap scores high, so it only gets flagged if you raise the threshold - set it to 1 to flag every overlap. Output is required, since the overlap is new geometry."/>
+
+        <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="0,6,8,6" Text="Polygon Layer A:"/>
+        <ComboBox x:Name="LayerACombo" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,6,0,6"/>
+
+        <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Margin="0,6,8,6" Text="Polygon Layer B:"/>
+        <ComboBox x:Name="LayerBCombo" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,6,0,6"/>
+
+        <TextBlock Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" Margin="0,6,8,6" Text="Thinness Ratio Threshold:"/>
+        <TextBox x:Name="ThinnessTextBox" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,6,0,6" Text="0.1"/>
+
+        <TextBlock Grid.Row="4" Grid.Column="0" VerticalAlignment="Center" Margin="0,6,8,6" Text="Maximum Area (optional):"/>
+        <TextBox x:Name="MaxAreaTextBox" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,6,0,6"/>
+
+        <TextBlock Grid.Row="5" Grid.Column="0" VerticalAlignment="Center" Margin="0,6,8,6" Text="Output Feature Class:"/>
+        <TextBox x:Name="OutputPathTextBox" Grid.Row="5" Grid.Column="1" Margin="0,6,6,6" VerticalContentAlignment="Center"/>
+        <Button x:Name="BrowseButton" Grid.Row="5" Grid.Column="2" Content="Browse..." Padding="8,2" Margin="0,6,0,6" Click="BrowseButton_Click"/>
+
+        <CheckBox x:Name="UseDefaultGdbCheck" Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,0,0,6"
+                  Content="Use project default geodatabase for output" IsChecked="True"/>
+
+        <TextBlock Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,6,0,4" Text="Log:" VerticalAlignment="Top"/>
+        <Grid Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="3">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <qc:QcProgressPanel x:Name="ProgressPanel" Grid.Row="0"/>
+            <Border Grid.Row="1" BorderBrush="Gray" BorderThickness="1">
+                <wfi:WindowsFormsHost x:Name="LogHost"/>
+            </Border>
+        </Grid>
+
+        <StackPanel Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+            <Button x:Name="RunButton" Content="Run" Width="90" Padding="4" Margin="0,0,8,0" Click="RunButton_Click" IsDefault="True"/>
+            <Button x:Name="CancelButton" Content="Cancel" Width="90" Padding="4" Margin="0,0,8,0" Click="CancelButton_Click" Visibility="Collapsed"/>
+            <Button x:Name="CloseButton" Content="Close" Width="90" Padding="4" Click="CloseButton_Click" IsCancel="True"/>
+        </StackPanel>
+    </Grid>
+</controls:ProWindow>

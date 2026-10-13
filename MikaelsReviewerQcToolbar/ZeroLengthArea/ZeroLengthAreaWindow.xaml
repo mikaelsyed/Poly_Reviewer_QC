@@ -1,0 +1,67 @@
+<controls:ProWindow x:Class="MikaelsReviewerQcToolbar.ZeroLengthArea.ZeroLengthAreaWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:ArcGIS.Desktop.Framework.Controls;assembly=ArcGIS.Desktop.Framework"
+        xmlns:wfi="clr-namespace:System.Windows.Forms.Integration;assembly=WindowsFormsIntegration"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:qc="clr-namespace:MikaelsReviewerQcToolbar.Common"
+        mc:Ignorable="d"
+        Title="Zero Length / Zero Area" Height="640" Width="540"
+        WindowStartupLocation="CenterOwner" ResizeMode="CanResize">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" TextWrapping="Wrap" Margin="0,0,0,10"
+                   Text="Finds degenerate geometry: empty or missing shapes (a geodatabase stores an exactly-zero line or polygon as an empty shape), polylines whose length is at or below the limit, and polygons whose area is at or below the limit. Each part is checked too, so a multipart feature with one collapsed part is caught. Leave the limits at 0 for true zero, or raise them to catch near-zero features."/>
+
+        <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="0,6,8,6" Text="Input Layer:"/>
+        <ComboBox x:Name="LayerCombo" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,6,0,6"/>
+
+        <TextBlock x:Name="LengthLabel" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Margin="0,6,8,6" Text="Polyline length at or below:"/>
+        <TextBox x:Name="LengthTextBox" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,6,0,6" Text="0"/>
+
+        <TextBlock x:Name="AreaLabel" Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" Margin="0,6,8,6" Text="Polygon area at or below:"/>
+        <TextBox x:Name="AreaTextBox" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,6,0,6" Text="0"/>
+
+        <TextBlock Grid.Row="4" Grid.Column="0" VerticalAlignment="Center" Margin="0,6,8,6" Text="Output Feature Class:"/>
+        <TextBox x:Name="OutputPathTextBox" Grid.Row="4" Grid.Column="1" Margin="0,6,6,6" VerticalContentAlignment="Center"/>
+        <Button x:Name="BrowseButton" Grid.Row="4" Grid.Column="2" Content="Browse..." Padding="8,2" Margin="0,6,0,6" Click="BrowseButton_Click"/>
+
+        <CheckBox x:Name="UseDefaultGdbCheck" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,0,0,6"
+                  Content="Use project default geodatabase for output"/>
+
+        <TextBlock Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,6,0,4" Text="Log:"/>
+        <Grid Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="3">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <qc:QcProgressPanel x:Name="ProgressPanel" Grid.Row="0"/>
+            <Border Grid.Row="1" BorderBrush="Gray" BorderThickness="1">
+                <wfi:WindowsFormsHost x:Name="LogHost"/>
+            </Border>
+        </Grid>
+
+        <StackPanel Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+            <Button x:Name="RunButton" Content="Run" Width="90" Padding="4" Margin="0,0,8,0" Click="RunButton_Click" IsDefault="True"/>
+            <Button x:Name="CancelButton" Content="Cancel" Width="90" Padding="4" Margin="0,0,8,0" Click="CancelButton_Click" Visibility="Collapsed"/>
+            <Button x:Name="CloseButton" Content="Close" Width="90" Padding="4" Click="CloseButton_Click" IsCancel="True"/>
+        </StackPanel>
+    </Grid>
+</controls:ProWindow>
